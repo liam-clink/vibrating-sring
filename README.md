@@ -1,2 +1,2 @@
-# vibrating-sring
+# vibrating-string
 test
