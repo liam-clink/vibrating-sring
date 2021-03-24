@@ -5,7 +5,7 @@ INCLUDES = -I /usr/local/inlcude
 
 CFLAGS = $(OPT) $(INCLUDES) $(LIBS) 
 threading_practice: threading_practice.cpp
-	$(CC) -o $@ $< $(CFLAGS)
+	$(CC) -o $@ $< $(CFLAGS) -MMD
 
 string_simulation : string_simulation.cpp
-	$(CC) -o $@ $< $(CFLAGS)
+	$(CC) -MMD -o $@ $< $(CFLAGS) 
