@@ -1,0 +1,8 @@
+# executables
+*.x
+
+# dependency libraries
+*.d
+
+# debugging images
+*.png
