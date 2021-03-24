@@ -4,8 +4,8 @@ LIBS = -lpthread
 INCLUDES = -I /usr/local/inlcude
 
 CFLAGS = $(OPT) $(INCLUDES) $(LIBS) 
-threading_practice: threading_practice.cpp
-	$(CC) -o $@ $< $(CFLAGS) -MMD
+threading_practice.x: threading_practice.cpp
+	$(CC) -MMD -o $@ $< $(CFLAGS) 
 
 string_simulation.x : string_simulation.cpp
 	$(CC) -MMD -o $@ $< $(CFLAGS) 

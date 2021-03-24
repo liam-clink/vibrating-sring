@@ -7,7 +7,7 @@
 
 #define Print(x) std::cout << x;
 
-Vector2D force(Vector2D&,Vector2D&,Vector2D&,Vector2D&,Vector2D&);
+Vector2D force(Vector2D&,Vector2D&,Spring&,Vector2D&,Spring&);
 void update(std::vector<Vector2D>&,std::vector<Vector2D>&,std::vector<Spring>&,std::vector<double>&,double);
 void update(std::vector<Vector2D>&,std::vector<Vector2D>&,Spring&,double,double);
 
@@ -40,7 +40,7 @@ int main()
     // std::cin >> time;
 
     // Print("Enter time step for simulation (sec): ")
-    double dt = 40;
+    double dt = 0.001;
     // std::cin >> dt;
 
     // setup variables
@@ -61,10 +61,7 @@ int main()
     positions[0]              = Vector2D(0.         , 0.);
     positions[num_masses + 1] = Vector2D(full_length, 0.);
 
-    for (int i = 1; i <= num_masses; i++) positions[i] = Vector2D(0., sin((double) i * 3.14159 / 11));
-    // for (auto pos : positions) Print(pos); Print('\n');
-
-    Print(positions[3] - positions[2]);
+    for (int i = 1; i <= num_masses; i++) positions[i] = Vector2D((double) i * length, sin((double) i * 3.14159 / 11));
 
     Print("Running simulation.\n");
     double t = 0;
@@ -73,8 +70,8 @@ int main()
         update(positions, velocities, sp, mass, dt);
         t += dt;
     }
-    // for (auto pos : positions) Print(pos); Print('\n');
-    // for (auto vel : velocities) Print(vel); Print('\n');
+    for (auto pos : positions) Print(pos); Print('\n');
+    for (auto vel : velocities) Print(vel); Print('\n');
     return 0;
 }
 
@@ -92,11 +89,6 @@ Vector2D force(Vector2D& r_mass, Vector2D& r_springLeft, Spring& sp_left, Vector
     Vector2D force_left  = r_mass_left  * (-sp_left. k() * (len_sp_left  - sp_left. L0()) / len_sp_left );
     Vector2D force_right = r_mass_right * (-sp_right.k() * (len_sp_right - sp_right.L0()) / len_sp_right);
 
-    // Print(r_mass);
-    // Print(r_springLeft);
-    // Print(r_mass_left)
-    // Print(vec_inner(r_mass_left , r_mass_left ));
-
     return force_left + force_right;
 }
 
@@ -106,13 +98,13 @@ Vector2D force(Vector2D& r_mass, Vector2D& r_springLeft, Spring& sp_left, Vector
 
 void update(std::vector<Vector2D>& positions, std::vector<Vector2D>& velocities, std::vector<Spring>& springs, std::vector<double>& masses, double delta_time)
 {
-    Print("Inside update\n");
+    // Print("Inside update\n");
     int N = (int) positions.size();
     for (int i = 1; i < N-1; i++) positions[i] = velocities[i] * delta_time;
     for (int i = 1; i < N-1; i++)
     {
         Vector2D t_force = force(positions[i], positions[i-1], springs[i-1], positions[i+1], springs[i]);
-        Print(t_force);
+        // Print(t_force);
         velocities[i] += t_force * (delta_time / masses[i]);
     }
 }
@@ -124,11 +116,7 @@ void update(std::vector<Vector2D>& positions, std::vector<Vector2D>& velocities,
 void update(std::vector<Vector2D>& positions, std::vector<Vector2D>& velocities, Spring& springs, double masses, double delta_time)
 {
     int N = (int) positions.size();
-    for (auto pos : positions) Print(pos); Print('\n');
-    for (auto vel : velocities) Print(vel); Print('\n');
-    for (int i = 1; i < N-1; i++) positions[i] = velocities[i] * delta_time;
-    for (auto pos : positions) Print(pos); Print('\n');
-    for (auto vel : velocities) Print(vel); Print('\n');
+    for (int i = 1; i < N-1; i++) positions[i] += velocities[i] * delta_time;
     for (int i = 1; i < N-1; i++)
     {
         Vector2D t_force = force(positions[i], positions[i-1], springs, positions[i+1], springs);
