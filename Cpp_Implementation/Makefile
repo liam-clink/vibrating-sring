@@ -1,11 +1,11 @@
-CC = g++ -std=c++17
-OPT = -O2 -funroll-loops -finline-functions
+CC = g++ -std=c++17 -Wall#-g3 -fsanitize=address
+OPT = -O2 -funroll-loops -finline-functions -fopenmp
 LIBS = -lpthread
 INCLUDES = -I /usr/local/inlcude
 
-CFLAGS = $(OPT) $(INCLUDES) $(LIBS) 
+CFLAGS = $(OPT)
 threading_practice.x: threading_practice.cpp
-	$(CC) -MMD -o $@ $< $(CFLAGS) 
+	$(CC) $(CFLAGS) -MMD -o $@ $< 
 
 string_simulation.x : string_simulation.cpp
-	$(CC) -MMD -o $@ $< $(CFLAGS) 
+	$(CC) $(CFLAGS) -MMD -o $@ $< $(INCLUDE) $(LIBS)

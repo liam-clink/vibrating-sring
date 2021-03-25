@@ -1,11 +1,15 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
+#include <omp.h>
+#include <chrono>
 
 #include "Spring.h"
 #include "Vector2D.h"
 
 #define Print(x) std::cout << x;
+
+#define PARALLEL 1
 
 Vector2D force(Vector2D&,Vector2D&,Spring&,Vector2D&,Spring&);
 void update(std::vector<Vector2D>&,std::vector<Vector2D>&,std::vector<Spring>&,std::vector<double>&,double);
@@ -20,7 +24,7 @@ int main()
     // Input data from user
     // Will eventually make into a parameter file
     // Print("Enter the number of masses to simulate: ");
-    int num_masses = 10;
+    int num_masses = 100000;
     // std::cin >> num_masses;
 
     // Print("Enter equilibrium length (meters) of spring: ");
@@ -65,13 +69,20 @@ int main()
 
     Print("Running simulation.\n");
     double t = 0;
+    auto start = std::chrono::system_clock::now();
     while(t < time)
     {
         update(positions, velocities, sp, mass, dt);
         t += dt;
     }
-    for (auto pos : positions) Print(pos); Print('\n');
-    for (auto vel : velocities) Print(vel); Print('\n');
+    auto elapsed = std::chrono::system_clock::now() - start;
+    Print(std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() << std::endl);
+    // for (auto pos : positions) Print(pos); Print('\n');
+    // for (auto vel : velocities) Print(vel); Print('\n');
+
+    positions. erase(positions. begin(), positions. end());
+    velocities.erase(velocities.begin(), velocities.end());
+
     return 0;
 }
 
@@ -116,10 +127,23 @@ void update(std::vector<Vector2D>& positions, std::vector<Vector2D>& velocities,
 void update(std::vector<Vector2D>& positions, std::vector<Vector2D>& velocities, Spring& springs, double masses, double delta_time)
 {
     int N = (int) positions.size();
-    for (int i = 1; i < N-1; i++) positions[i] += velocities[i] * delta_time;
+ #if PARALLEL   
+    // #pragma omp parallel
+    #pragma omp parallel for
+#endif
+    for (int i = 1; i < N-1; i++) 
+    {
+        positions[i] += velocities[i-1] * delta_time;
+    }
+
+#if PARALLEL
+    // #pragma omp parallel
+    #pragma omp parallel for
+#endif
     for (int i = 1; i < N-1; i++)
     {
         Vector2D t_force = force(positions[i], positions[i-1], springs, positions[i+1], springs);
-        velocities[i] += t_force * (delta_time / masses);
+        velocities[i-1] += t_force * (delta_time / masses);
     }
+
 }

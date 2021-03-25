@@ -44,7 +44,7 @@ double vec_inner(const Vector2D& v1, const Vector2D& v2)
 // Scalar multiplication 
 Vector2D operator*(Vector2D& vec, const double c)
 {
-    vec.x *= c;
-    vec.y *= c;
+    vec.x *= (double) c;
+    vec.y *= (double) c;
     return vec;
 }
