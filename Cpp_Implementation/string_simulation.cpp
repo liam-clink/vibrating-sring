@@ -1,54 +1,35 @@
-#include <iostream>
-#include <vector>
-#include <math.h>
-#include <omp.h>
+// STL includes
 #include <chrono>
+#include <math.h>
+#include <fstream>
+#include <sstream>
 
-#include "Spring.h"
-#include "Vector2D.h"
+// Local defined headers
+#include "Dynamics.h"
 
-#define Print(x) std::cout << x;
-
+// Macros
 #define PARALLEL 1
+#define Print(x) std::cout << x << std::endl;
 
-Vector2D force(Vector2D&,Vector2D&,Spring&,Vector2D&,Spring&);
-void update(std::vector<Vector2D>&,std::vector<Vector2D>&,std::vector<Spring>&,std::vector<double>&,double);
-void update(std::vector<Vector2D>&,std::vector<Vector2D>&,Spring&,double,double);
+void ReadParametersFromFile(const char*,int&,double&,double&,double&,double&,double&,bool&);
 
 int main()
 {
-    Print("Begin program\n");
-    Print("For now we will assume that all springs and masses are the same.\n")
-    Print('\n');
+    Print("Begin program");
+    Print("For now we will assume that all springs and masses are the same.")
+    Print(' ');
 
-    // Input data from user
-    // Will eventually make into a parameter file
-    // Print("Enter the number of masses to simulate: ");
-    int num_masses = 100000;
-    // std::cin >> num_masses;
-
-    // Print("Enter equilibrium length (meters) of spring: ");
-    double length = 1.0;
-    // std::cin >> length;
-
-    // Print("Enter the spring constant (Newton meters): ")
-    double spring_const = 10.0;
-    // std::cin >> spring_const;
-
-    // Print("Enter mass (kg): ");
-    double mass = 2.0;
-    // std::cin >> mass;
-
-    // Print("Enter time of simulaton (sec): ");
-    double time = 45.0;
-    // std::cin >> time;
-
-    // Print("Enter time step for simulation (sec): ")
-    double dt = 0.001;
-    // std::cin >> dt;
+    int num_masses {0};
+    double length {0};
+    double spring_const {0};
+    double mass {0};
+    double time {0};
+    double dt {0};
+    bool parallel {false};
+    ReadParametersFromFile("params.txt", num_masses, length, spring_const, mass, time, dt, parallel);
 
     // setup variables
-    Print("Setting up variable.\n");
+    Print("Setting up variable.");
     std::vector<Vector2D> positions{};  positions. resize(num_masses + 2); // "+ 2" is for fixed endpoints
     std::vector<Vector2D> velocities{}; velocities.resize(num_masses);
 
@@ -67,16 +48,16 @@ int main()
 
     for (int i = 1; i <= num_masses; i++) positions[i] = Vector2D((double) i * length, sin((double) i * 3.14159 / 11));
 
-    Print("Running simulation.\n");
+    Print("Running simulation.");
     double t = 0;
     auto start = std::chrono::system_clock::now();
     while(t < time)
     {
-        update(positions, velocities, sp, mass, dt);
+        Update(positions, velocities, sp, mass, dt, parallel);
         t += dt;
     }
     auto elapsed = std::chrono::system_clock::now() - start;
-    Print(std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() << std::endl);
+    Print(std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() << " ms" << std::endl);
     // for (auto pos : positions) Print(pos); Print('\n');
     // for (auto vel : velocities) Print(vel); Print('\n');
 
@@ -89,61 +70,30 @@ int main()
 //
 // ==========================================================================
 //
-Vector2D force(Vector2D& r_mass, Vector2D& r_springLeft, Spring& sp_left, Vector2D& r_springRight, Spring& sp_right)
+
+void ReadParametersFromFile(const char* file_name, int& mass_count, double& spring_length, double& spring_const, double& mass, double& elapsed_time, double& time_step, bool& parallel)
 {
-    Vector2D r_mass_left  = r_mass - r_springLeft;
-    Vector2D r_mass_right = r_mass - r_springRight;
+    std::fstream fin(file_name, std::fstream::in); 
 
-    double len_sp_left  = sqrt(vec_inner(r_mass_left , r_mass_left ));
-    double len_sp_right = sqrt(vec_inner(r_mass_right, r_mass_right));
-
-    Vector2D force_left  = r_mass_left  * (-sp_left. k() * (len_sp_left  - sp_left. L0()) / len_sp_left );
-    Vector2D force_right = r_mass_right * (-sp_right.k() * (len_sp_right - sp_right.L0()) / len_sp_right);
-
-    return force_left + force_right;
-}
-
-//
-// ==========================================================================
-//
-
-void update(std::vector<Vector2D>& positions, std::vector<Vector2D>& velocities, std::vector<Spring>& springs, std::vector<double>& masses, double delta_time)
-{
-    // Print("Inside update\n");
-    int N = (int) positions.size();
-    for (int i = 1; i < N-1; i++) positions[i] = velocities[i] * delta_time;
-    for (int i = 1; i < N-1; i++)
+    if (!fin.is_open())
     {
-        Vector2D t_force = force(positions[i], positions[i-1], springs[i-1], positions[i+1], springs[i]);
-        // Print(t_force);
-        velocities[i] += t_force * (delta_time / masses[i]);
-    }
-}
-
-//
-// ==========================================================================
-//
-
-void update(std::vector<Vector2D>& positions, std::vector<Vector2D>& velocities, Spring& springs, double masses, double delta_time)
-{
-    int N = (int) positions.size();
- #if PARALLEL   
-    // #pragma omp parallel
-    #pragma omp parallel for
-#endif
-    for (int i = 1; i < N-1; i++) 
-    {
-        positions[i] += velocities[i-1] * delta_time;
+        Print("Failed to open parameters file. Terminating program with error code -2.\n");
+        exit(-2);
     }
 
-#if PARALLEL
-    // #pragma omp parallel
-    #pragma omp parallel for
-#endif
-    for (int i = 1; i < N-1; i++)
+    std::string input;
+    while (std::getline(fin, input))
     {
-        Vector2D t_force = force(positions[i], positions[i-1], springs, positions[i+1], springs);
-        velocities[i-1] += t_force * (delta_time / masses);
-    }
+        std::stringstream line(input);
+        line >> input;
 
+        if      (input == "number_of_masses")   line >> mass_count;
+        else if (input == "equilibrium_length") line >> spring_length;
+        else if (input == "spring_constant")    line >> spring_const;
+        else if (input == "mass")               line >> mass;
+        else if (input == "total_elapsed_time") line >> elapsed_time;
+        else if (input == "time_step")          line >> time_step;
+        else if (input == "run_parallel")       line >> parallel;
+        else continue;
+    }
 }
