@@ -11,7 +11,7 @@
 #define PARALLEL 1
 #define Print(x) std::cout << x << std::endl;
 
-struct Simulation_Paramters
+struct Simulation_Parameters
 {
     int num_masses;
     double spring_length;
@@ -22,7 +22,7 @@ struct Simulation_Paramters
     bool parallel;
 };
 
-void ReadParametersFromFile(const char*, Simulation_Paramters& params);
+void ReadParametersFromFile(const char*, Simulation_Parameters& params);
 
 int main()
 {
@@ -30,7 +30,7 @@ int main()
     Print("For now we will assume that all springs and masses are the same.")
     Print(' ');
 
-    Simulation_Paramters params;
+    Simulation_Parameters params;
     ReadParametersFromFile("params.txt", params);
 
     // setup variables
@@ -76,7 +76,7 @@ int main()
 // ==========================================================================
 //
 
-void ReadParametersFromFile(const char* file_name, Simulation_Paramters& params)
+void ReadParametersFromFile(const char* file_name, Simulation_Parameters& params)
 {
     // TODO: Implement variations that read in different numbrs of masses and spring constants
     //       to facilitate, we can offer some templates.
