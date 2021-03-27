@@ -7,5 +7,5 @@ CFLAGS = $(OPT)
 threading_practice.x: threading_practice.cpp
 	$(CC) $(CFLAGS) -MMD -o $@ $< 
 
-string_simulation.x: string_simulation.cpp
+string_simulation.x: string_simulation.cpp 	
 	$(CC) $(CFLAGS) -MMD -o $@ $< $(INCLUDE) $(LIBS)
