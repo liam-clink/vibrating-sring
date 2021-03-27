@@ -9,7 +9,14 @@
 
 // Macros
 #define PARALLEL 1
-#define Print(x) std::cout << x << std::endl;
+
+template<typename... Args>
+void Print(std::ostream& out, Args&&... args)
+{
+    // Uses C++17 Folding Expressions
+    ((out << std::forward<Args>(args) << '\t'), ...);
+    out << '\n';
+}
 
 struct Simulation_Parameters
 {
@@ -26,43 +33,56 @@ void ReadParametersFromFile(const char*, Simulation_Parameters& params);
 
 int main()
 {
-    Print("Begin program");
-    Print("For now we will assume that all springs and masses are the same.")
-    Print(' ');
+    std::cout << "Begin program\n";
+    std::cout << "For now we will assume that all springs and masses are the same.\n";
+    std::cout << '\n';
 
     Simulation_Parameters params;
     ReadParametersFromFile("params.txt", params);
 
     // setup variables
-    Print("Setting up variable.");
-    std::vector<Vector2D> positions{};  positions. resize(params.num_masses + 2); // "+ 2" is for fixed endpoints
-    std::vector<Vector2D> velocities{}; velocities.resize(params.num_masses);
+    
+    Print(std::cout,"Setting up variable.");
 
-    // std::vector<Spring> springs{}; springs.resize(num_masses + 1); // "+ 1" num_masses partitions into num_masses + 1 segments
-
-    // std::vector<double> masses{}; masses.resize(num_masses);
+    // "+ 2" is for fixed endpoints
+    std::vector<Vector2D> positions{}; 
+    positions.resize(params.num_masses + 2);
+    std::vector<Vector2D> velocities{};
+    velocities.resize(params.num_masses);
 
     Spring sp = Spring(params.spring_const, params.spring_length);
 
     // from end point to endpoint length
-    double full_length = (double) (params.num_masses + 1) * params.spring_length;
+    double full_length = (double) (params.num_masses + 1) *
+                         params.spring_length;
 
     // set endpoints' positions 
     positions[0]              = Vector2D(0.         , 0.);
     positions[params.num_masses + 1] = Vector2D(full_length, 0.);
 
-    for (int i = 1; i <= params.num_masses; i++) positions[i] = Vector2D((double) i * params.spring_length, sin((double) i * 3.14159 / 11));
-
-    Print("Running simulation.");
-    double t = 0;
-    auto start = std::chrono::system_clock::now();
-    while(t < params.elapsed_time)
+    for (int i = 1; i <= params.num_masses; i++)
     {
-        Update(positions, velocities, sp, params.mass, params.time_step, params.parallel);
-        t += params.time_step;
+        positions[i] = Vector2D((double) i * params.spring_length,
+                                sin((double) i * 3.14159 / 11));
     }
-    auto elapsed = std::chrono::system_clock::now() - start;
-    Print(std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() << " ms" << std::endl);
+
+    
+    Print(std::cout,"Running simulation.");
+    double t = 0;
+    
+    {
+        using namespace std::chrono;
+        auto start = system_clock::now();
+        
+        while(t < params.elapsed_time)
+        {
+            Update(positions, velocities, sp, params.mass, params.time_step, params.parallel);
+            t += params.time_step;
+        }
+        
+        auto elapsed = system_clock::now() - start;
+        Print(std::cout, duration_cast<milliseconds>(elapsed).count(), " ms");
+    }
     // for (auto pos : positions) Print(pos); Print('\n');
     // for (auto vel : velocities) Print(vel); Print('\n');
 
@@ -84,7 +104,9 @@ void ReadParametersFromFile(const char* file_name, Simulation_Parameters& params
 
     if (!fin.is_open())
     {
-        Print("Failed to open parameters file. Terminating program with error code -2.\n");
+        Print(std::cout, 
+              "Failed to open parameters file.",
+              "\nTerminating program with error code -2.");
         exit(-2);
     }
 

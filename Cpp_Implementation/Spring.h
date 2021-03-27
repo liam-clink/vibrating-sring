@@ -6,10 +6,12 @@ class Spring
 {
 public:
     Spring() = default;
-    Spring(double springConstant, double equiLength) 
-        : m_springConstant(springConstant), m_equiLength(equiLength) {};
-    Spring(const Spring& sp)
-        : m_springConstant(sp.m_springConstant), m_equiLength(sp.m_equiLength) {};
+    Spring(double springConstant, double equiLength) :
+        m_springConstant(springConstant),
+        m_equiLength(equiLength) {};
+    Spring(const Spring& sp) :
+        m_springConstant(sp.m_springConstant),
+        m_equiLength(sp.m_equiLength) {};
 
     // assignment operator overloading to use with copy constructors
     // no move assignment necessary since we are not heap-allocating
