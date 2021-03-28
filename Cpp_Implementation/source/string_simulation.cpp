@@ -16,7 +16,13 @@ int main()
     SimulationClass sim = SimulationClass::GetInstance();
     
     Print(std::cout,"Running simulation.");
-    sim.RunSimulation("params.txt");
+    {   
+        using namespace std::chrono;
+        auto start = system_clock::now();
+        sim.RunSimulation("params.txt");
+        auto elapsed = system_clock::now() - start;
+        Print(std::cout, duration_cast<milliseconds>(elapsed).count(), "ms");
+    }
 
     return 0;
 }

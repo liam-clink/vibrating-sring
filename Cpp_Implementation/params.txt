@@ -1,7 +1,7 @@
-number_of_masses    10
+number_of_masses    10000
 equilibrium_length  1
 spring_constant     10
 mass                1
 total_elapsed_time  10
-time_step           1
+time_step           0.001
 run_parallel        1

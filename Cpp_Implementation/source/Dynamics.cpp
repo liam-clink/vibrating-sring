@@ -122,7 +122,7 @@ void SimulationClass::RunSimulation(const char* file_name)
     ReadParametersFromFile(file_name);
 
     // Needs to be moved to separate function...
-     for (int i = 1; i <= _params.num_masses; i++)
+    for (int i = 1; i <= _params.num_masses; i++)
     {
         positions[i] = Vector2D((double) i * _params.spring_length,
                                 sin((double) i * 3.14159 / 11));
@@ -132,6 +132,7 @@ void SimulationClass::RunSimulation(const char* file_name)
     while (t < _params.elapsed_time)
     {
         Update();
+        t += _params.time_step;
     }
 }
 
