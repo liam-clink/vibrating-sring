@@ -19,3 +19,9 @@ string_simulation.x: $(OBJ_FILES)
 
 $(OBJ)%.o: $(SRC)%.cpp
 	$(CC) $(CFLAGS) $(INCLUDE) -MMD -c -o $@ $< 
+
+run:
+	./string_simulation.x
+
+clean:
+	rm -f build/*
