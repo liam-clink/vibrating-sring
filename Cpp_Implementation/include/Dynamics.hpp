@@ -16,27 +16,32 @@ struct Simulation_Parameters
     bool parallel;
 };
 
+// This is a singleton class
 class SimulationClass
 {
 public:
-    Vector2D               Force(Vector2D& r_mass,
-                                 Vector2D& r_left_mass,
-                                 Spring&   r_left_spring,
-                                 Vector2D& r_right_mass,
-                                 Spring&   r_right_spring);                
     static SimulationClass GetInstance(void);
-    void                   ReadParametersFromFile(const char* file_name);
-    void                   RunSimulation (const char* file_name);
-    void                   Update(void); 
+
+    Vector2D Force(const Vector2D& r_mass,
+                   const Vector2D& r_left_mass,
+                   const Spring&   r_left_spring,
+                   const Vector2D& r_right_mass,
+                   const Spring&   r_right_spring);                
+
+    void ReadParametersFromFile(const char* file_name);
+    void RunSimulation (const char* file_name);
+    void Update(void); 
 
     
     std::vector<Vector2D>  positions;
     std::vector<Vector2D>  velocities;
 
 private:
+    // The constructor is private because this is a singleton
     SimulationClass(void) = default;
 
-    static SimulationClass *_instance;
+    // static means there's only one copy of _instance
+    static SimulationClass* _instance;
     Simulation_Parameters  _params;
     Spring                 _spring;
 };

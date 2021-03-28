@@ -7,13 +7,15 @@
 #include "../include/Outputs.hpp"
 
 // Set default instance to nullptr
+// Needs to be defined for GetInstance to work
+// This is particular to singletons
 SimulationClass *SimulationClass::_instance = nullptr;
 
-Vector2D SimulationClass::Force(Vector2D& r_mass,
-                                Vector2D& r_springLeft,
-                                Spring&   sp_left,
-                                Vector2D& r_springRight,
-                                Spring&   sp_right)
+Vector2D SimulationClass::Force(const Vector2D& r_mass,
+                                const Vector2D& r_springLeft,
+                                const Spring&   sp_left,
+                                const Vector2D& r_springRight,
+                                const Spring&   sp_right)
 {
     Vector2D r_mass_left  = r_mass - r_springLeft;
     Vector2D r_mass_right = r_mass - r_springRight;
@@ -35,6 +37,7 @@ Vector2D SimulationClass::Force(Vector2D& r_mass,
 
 SimulationClass SimulationClass::GetInstance(void)
 {
+    // Check if pointer is uninitialized (floating poiner)
     if (!_instance)
     {
         _instance = new SimulationClass;
