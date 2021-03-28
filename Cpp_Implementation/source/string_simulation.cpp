@@ -13,6 +13,8 @@ int main()
     std::cout << '\n';
 
     Print(std::cout, "Setting up simulation.");
+    
+    // Since it's a singleton we use GetInstance()
     SimulationClass sim = SimulationClass::GetInstance();
     
     Print(std::cout,"Running simulation.");
