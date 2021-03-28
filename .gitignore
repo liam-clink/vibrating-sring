@@ -6,3 +6,8 @@
 
 # debugging images
 *.png
+
+# binary files
+build/
+.o
+

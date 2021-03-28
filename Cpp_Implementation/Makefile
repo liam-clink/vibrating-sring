@@ -3,9 +3,25 @@ OPT = -O2 -funroll-loops -finline-functions -fopenmp
 LIBS = -lpthread
 INCLUDES = -I /usr/local/include 
 
-CFLAGS = $(OPT)
-threading_practice.x: threading_practice.cpp
-	$(CC) $(CFLAGS) -MMD -o $@ $< 
+SRC = ./source/
+INC = ./include/
+OBJ = ./build/
 
-string_simulation.x: string_simulation.cpp 	
-	$(CC) $(CFLAGS) -MMD -o $@ $< $(INCLUDE) $(LIBS)
+FILES := $(shell find $(SRC) -name '*.cpp')
+OBJ_FILES := $(patsubst $(SRC)%.cpp,$(OBJ)%.o,$(FILES))
+
+CFLAGS = $(OPT)
+
+all: string_simulation.x
+
+string_simulation.x: $(OBJ_FILES)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS) $(INCLUDE)
+
+$(OBJ)%.o: $(SRC)%.cpp
+	$(CC) $(CFLAGS) $(INCLUDE) -MMD -c -o $@ $< 
+
+run:
+	./string_simulation.x
+
+clean:
+	rm -f build/*
