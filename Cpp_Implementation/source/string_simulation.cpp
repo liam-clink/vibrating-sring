@@ -8,8 +8,8 @@
 
 int main()
 {
-    Print("Begin program");
-    Print("For now we will assume that all springs and masses are the same.");
+    Print(std::cout, "Begin program");
+    Print(std::cout, "For now we will assume that all springs and masses are the same.");
 
     Print(std::cout, "Setting up simulation.");
     
